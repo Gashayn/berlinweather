@@ -1,0 +1,23 @@
+import json
+import os
+
+def process_weather_data(input_file, output_file):
+    with open(input_file, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+
+        
+    results = []
+    for forecast in data['forecasts']:
+        date = forecast['date']
+        parts = forecast['parts']
+
+        day_parts = ['morning', 'day', 'evening', 'night']
+        for part in day_parts:
+            if part in parts:
+                temp_data = parts[part]
+                results.append(
+                    f"{date} {part}:\n"
+                    f"Средняя температура: {temp_data['temp_avg']}°C\n"
+                    f"Максимальная температура: {temp_data['temp_max']}°C\n"
+                    f"Минимальная температура: {temp_data['temp_min']}°C\n"
+                )
