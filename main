@@ -57,5 +57,3 @@ if __name__ == "__main__":
     json_filename = 'Berlin24.09.06.json'
     output_file = process_weather_data(json_filename)
     print(f"Processed data saved to {output_file}")
-
-    git clone --bare https://github.com/Gashayn/berlinweather.git
