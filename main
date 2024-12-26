@@ -1,31 +1,59 @@
 import json
 import os
 
-def process_weather_data(input_file, output_file):
-    with open(input_file, 'r', encoding='utf-8') as file:
-        data = json.load(file)
+def process_weather_data(json_filename):
+    file_path = os.path.join('data', json_filename)
 
+    with open(file_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
 
-    results = []
-    for forecast in data['forecasts']:
-        date = forecast['date']
-        parts = forecast['parts']
+    morning_temps = []
+    daytime_temps = []
+    evening_temps = []
+    nighttime_temps = []
 
-        day_parts = ['morning', 'day', 'evening', 'night']
-        for part in day_parts:
-            if part in parts:
-                temp_data = parts[part]
-                results.append(
-                    f"{date} {part}:\n"
-                    f"Средняя температура: {temp_data['temp_avg']}°C\n"
-                    f"Максимальная температура: {temp_data['temp_max']}°C\n"
-                    f"Минимальная температура: {temp_data['temp_min']}°C\n"
-                )
+    for entry in data['weather']:
+        if 'temp' in entry:
+            morning_temps.append(entry['temp']['morning'])
+            daytime_temps.append(entry['temp']['day'])
+            evening_temps.append(entry['temp']['evening'])
+            nighttime_temps.append(entry['temp']['night'])
 
-    with open(output_file, 'w', encoding='utf-8') as file:
-        file.write("\n".join(results))
+    statistics = {
+        'morning': {
+            'avg': sum(morning_temps) / len(morning_temps),
+            'max': max(morning_temps),
+            'min': min(morning_temps)
+        },
+        'daytime': {
+            'avg': sum(daytime_temps) / len(daytime_temps),
+            'max': max(daytime_temps),
+            'min': min(daytime_temps)
+        },
+        'evening': {
+            'avg': sum(evening_temps) / len(evening_temps),
+            'max': max(evening_temps),
+            'min': min(evening_temps)
+        },
+        'nighttime': {
+            'avg': sum(nighttime_temps) / len(nighttime_temps),
+            'max': max(nighttime_temps),
+            'min': min(nighttime_temps)
+        }
+    }
 
-input_path = os.path.join('data', 'Berlin24.09.06.json')  
-output_path = 'output.txt'
-process_weather_data(input_path, output_path)
-print(f"Обработанные данные сохранены в файл: {output_path}")
+    output_filename = 'weather_statistics.txt'
+    with open(output_filename, 'w', encoding='utf-8') as f:
+        for time_of_day, stats in statistics.items():
+            f.write(f"{time_of_day.capitalize()} temperatures:\n")
+            f.write(f"  Average: {stats['avg']:.2f}°C\n")
+            f.write(f"  Maximum: {stats['max']}°C\n")
+            f.write(f"  Minimum: {stats['min']}°C\n")
+            f.write("\n")
+    
+    return output_filename
+
+if __name__ == "__main__":
+    json_filename = 'Berlin24.09.06.json'
+    output_file = process_weather_data(json_filename)
+    print(f"Processed data saved to {output_file}")
